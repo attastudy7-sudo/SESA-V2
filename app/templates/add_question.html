@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %} Questions Database Edit {% endblock %}
+
+{% block body %}
+<h1>Question Database</h1>
+<div class="add_question">
+<form action="{{url_for('main.add_question')}}" method="POST" class="add_question_form">
+    <label>Test Type</label>
+    <!-- Dropdown to select test type -->
+    <select class="box"  type="text" id="test_type" name="test_type">
+        <option value="Separation Anxiety Disorder">Separation Anxiety Disorder</option>
+        <option value="Social Phobia">Social/ School Phobia</option>
+        <option value="Generalised Anxiety Disorder">Generalised Anxiety Disorder</option>
+        <option value="Panic Disorder">Panic Disorder</option>
+        <option value="Obsessive Compulsive Disorder">Obsessive Compulsive Disorder</option>
+        <option value="Major Depressive Disorder">Major Depressive Disorder</option>
+    </select><br>
+    <div>
+    <label>Question Content</label>
+    <textarea class="box"  type="text" id="question_content" name="question_content"></textarea><br>
+    <button type='submit' style="padding: 10px; margin: 10px;">Add Question</button>
+</form>
+</div>
+<!-- <script src="{{ url_for('static', filename='JS/script.js') }}"></script> -->
+{% endblock %}

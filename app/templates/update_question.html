@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %} Question Update {% endblock %}
+
+{% block body %}
+<h1>Question Database</h1>
+<div class="add_question">
+<form action="{{url_for('main.edit_question', id=question.id)}}" method="POST" class="add_question_form">
+    <label>Test Type</label>
+    <!-- Dropdown to select test type -->
+    <select class="box"  type="text" id="test_type" name="test_type">
+        <option id="opt"id="opt" value="" class="not_option" disabled>{{question.test_type}}</option>
+        <option id="opt"value="Separation Anxiety Disorder">Separation Anxiety Disorder</option>
+        <option id="opt"value="Social Phobia">Social/ School Phobia</option>
+        <option id="opt"value="Generalised Anxiety Disorder">Generalised Anxiety Disorder</option>
+        <option id="opt"value="Panic Disorder">Panic Disorder</option>
+        <option id="opt"value="Obsessive Compulsive Disorder">Obsessive Compulsive Disorder</option>
+        <option id="opt"value="Major Depressive Disorder">Major Depressive Disorder</option>
+    </select><br>
+    <div>
+    <label>Question Content</label>
+    <textarea class="box"  type="text" id="question_content" name="question_content" >{{question.question_content}}</textarea><br>
+    <button type='submit' style="padding: 10px; margin: 10px;">Update Question</button>
+</form>
+</div>
+{% endblock %}

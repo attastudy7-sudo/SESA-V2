@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %} Edit Account {% endblock %}
+
+{% block body %}
+<h1>Edit Account</h1>
+<form method="POST">
+    <label>First Name:</label>
+    <input class="box" type="text" name="fname" value="{{ account.fname }}" required><br>
+    <label>Last Name:</label>
+    <input class="box" type="text" name="lname" value="{{ account.lname }}" required><br>
+    <label>Email:</label>
+    <br>
+    <input class="box" type="email" name="email" value="{{ account.email }}" required><br>
+    <label>Username:</label>
+    <input class="box" type="text" name="username" value="{{ account.username }}" required><br>
+    <label>Level:</label><br>
+    <input class="box" type="text" name="level" value="{{ account.level }}" required><br>
+    <label>Birthdate:</label>
+    <input class="box" type="date" name="birthdate" value="{{ account.birthdate }}" required><br>
+    <label>Gender:</label><br>
+    <select class="box" name="gender" required>
+        <option value="male" {% if account.gender == 'male' %}selected{% endif %}>Male</option>
+        <option value="female" {% if account.gender == 'female' %}selected{% endif %}>Female</option>
+    </select><br>
+    <label>Password:</label>
+    <input class="box" type="password" name="password" placeholder="Enter new password if changing" ><br>
+    <div class="statItem">
+    <input id="btn" type="submit" value="Update">
+    <button id="btn"><a style="color: white; text-decoration:none;" href="{{ url_for('main.admin_dashboard') }}">Cancel</a></button>
+    </div>
+</form>
+{% endblock %}
+admin = Accounts(
+    fname="Admin",
+    lname="User",
+    email="admin@example.com",
+    username="admin",
+    password=generate_password_hash("admin123"),
+    level="admin"  # or whatever field you use for admin role
+)
+
+db.session.add(admin)
+db.session.commit()

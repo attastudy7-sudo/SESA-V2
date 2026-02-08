@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ question.test_type }} Test{% endblock %}
+
+{% block body %}
+<div class="quiz-container">
+
+  <!-- HEADER -->
+  <header class="quiz-header">
+    <h2 class="test-title">{{ question.test_type }}</h2>
+  </header>
+
+  <!-- QUESTION CARD -->
+  <div class="question-card">
+    <div class="progress-container">
+      <span class="progress-text" id="progress-text">{{ progress }}%</span>
+      <div class="progress-bar">
+        <div class="progress" id="progress-bar" style="width: {{ (curr_question / question_count) * 100 }}%;"></div>
+      </div>
+    </div>
+
+    <form id="quizForm" onsubmit="return false;">
+      <div class="question-content">
+        <div class="question-number" id="question-number">
+          Question {{ curr_question }} of {{ question_count }}
+        </div>
+        <div class="question-text" id="question-text">{{ question.question_content }}</div>
+      </div>
+
+      <div class="option-container">
+      <div class="options" id="options">
+        {% for option in ['Never', 'Sometimes', 'Often', 'Always'] %}
+          <label class="option">
+            <input type="radio" name="answer" value="{{ option }}">
+            <span>{{ option }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      </div>
+
+      <div class="navigation-buttons">
+        <button type="button" id="backBtn" class="nav-btn back" style="visibility: hidden;">Back</button>
+        <button type="button" id="nextBtn" class="nav-btn next">Next</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer quiz-footer">
+    <p>This assessment is for informational purposes only <br> and is not a diagnostic tool.</p>
+    <p>Please consult a healthcare professional <br> for a complete evaluation.</p>
+  </div>
+</div>
+
+<style>
+/* ===== CONTAINER ===== */
+.quiz-container {
+  max-width: 900px;
+  margin: 0px auto;
+  padding: 0rem;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #333;
+}
+
+/* ===== HEADER ===== */
+.quiz-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  margin-top: 15px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 80px;
+  height: auto;
+  border-radius: 12px;
+}
+
+.logo-text h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #2a7f62;
+}
+
+.logo-text .tagline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #e6e2e2;
+}
+
+.test-title {
+  font-size: 1.8rem;
+  margin-top: 1rem;
+  color: var(--light-yellow);
+  border-bottom: none;
+}
+
+.test-subtitle {
+  font-size: 1rem;
+  color: #e6e2e2;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== QUESTION CARD ===== */
+.question-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 5px;
+  margin-top: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+.question-card:hover {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.progress-text {
+  font-weight: bold;
+  color: #2a7f62;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-left: 1rem;
+}
+
+.progress {
+  height: 100%;
+  background: #2a7f62;
+  width: 0;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+/* ===== QUESTIONS ===== */
+.question-content {
+  margin-bottom: 1.5rem;
+}
+
+.question-number {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.question-text {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.options {
+   display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  grid-auto-flow: column;
+  gap: 10px;
+  place-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.option {
+  width: 394px;
+  height: 100px;
+  background: #f2f6f5;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.option:hover {
+  background: #e0f0ec;
+}
+
+.option input {
+  accent-color: #2a7f62;
+}
+
+/* ===== NAV BUTTONS ===== */
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.nav-btn {
+  padding: 15px 25px;
+  background: #2a7f62;
+  max-width: 300px;
+  margin-top: 10px;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav-btn:hover {
+  background: #1e5b43;
+}
+
+/* ===== FOOTER ===== */
+.quiz-footer {
+    text-align: center;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    max-width: 900px;
+    padding: 20px 0px 20px 0px;
+    background: linear-gradient(135deg, var(--light-yellow) 0%, var(--warm-yellow) 100%);
+    color: var(--text-dark);
+    font-size: 14px;
+    border-top: 1px solid var(--accent-yellow);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+
+
+@media (max-width: 800px) {
+  .quiz-container {
+    padding: 0px;
+  }
+}
+
+@media (max-width: 500px) {
+  .quiz-container{
+    min-width: 380px;
+  }
+  .nav-btn {
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    padding: 12px;
+    padding: 15px 20px;
+    max-width: 230px;
+    font-size: 1.2rem;
+  }
+
+  .navigation-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quiz-header {
+    border-radius: 0px;
+    margin: 5px;
+    border-radius: 10px;
+  }
+
+  .test-title {
+    font-size: 2rem
+  }
+
+  .quiz-footer {
+    font-size: 0.8rem;
+    border-radius: 10px;
+    margin: 5px;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    max-width: 490px;
+    padding: 10px 0px 10px 0px;
+  }
+
+  .option {
+    width: 100%;
+    min-width: 280px;
+    height: 80px;
+    font-size: 0.9rem;
+  }
+
+  .options {
+    grid-auto-flow: row;
+    grid-template-rows: repeat(4, 1fr);
+  }
+
+
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const nextBtn = document.getElementById("nextBtn");
+  const backBtn = document.getElementById("backBtn");
+  const progressBar = document.getElementById("progress-bar");
+  const progressText = document.getElementById("progress-text");
+  const qNumber = document.getElementById("question-number");
+  const qText = document.getElementById("question-text");
+  const optionsDiv = document.getElementById("options");
+
+  const testType = "{{ test_type }}";
+  const totalQuestions = {{ question_count }};
+  let currentQuestion = {{ curr_question }};
+
+  async function sendAnswer(action) {
+    const selected = document.querySelector('input[name="answer"]:checked');
+    const answer = selected ? selected.value : null;
+
+    const payload = { answer, action };
+    const res = await fetch(`/api/test/${testType}/next`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (data.finished) {
+      window.location.href = data.redirect;
+      return;
+    }
+
+    qNumber.innerText = `Question ${data.question_number} of ${totalQuestions}`;
+    qText.innerText = data.question_text;
+    progressBar.style.width = `${data.progress}%`;
+    progressText.innerText = `${data.progress}%`;
+
+    optionsDiv.innerHTML = "";
+    ["Never", "Sometimes", "Often", "Always"].forEach(opt => {
+      const label = document.createElement("label");
+      label.classList.add("option");
+      label.innerHTML = `<input type="radio" name="answer" value="${opt}"><span>${opt}</span>`;
+      optionsDiv.appendChild(label);
+    });
+
+    backBtn.style.visibility = data.question_number > 1 ? "visible" : "hidden";
+
+    currentQuestion = data.question_number;
+  }
+
+  nextBtn.addEventListener("click", () => sendAnswer("next"));
+  backBtn.addEventListener("click", () => sendAnswer("back"));
+});
+</script>
+{% endblock %}

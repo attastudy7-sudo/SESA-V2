@@ -1,0 +1,1382 @@
+{% extends 'base.html' %}
+{% block title %}{{ school.school_name }} Dashboard{% endblock %}
+
+{% block body %}
+
+<style>
+:root {
+    /* Light mode defaults (optional if you want toggle) */
+    --bg-color: linear-gradient(145deg, #ffffff, #f3f8f5);;
+    --card-bg: #ffffff;
+    --primary-color: #2fa85a;
+    --accent-color: #3f9e68;
+    --text-color: #111;
+    --table-text: white;
+    --text-muted: #555;
+    --table-header-bg: #2fa85a;
+    --upload-bg: #f3f8f5;
+    --flash-success: #2fa85a;
+    --flash-danger: #e53935;
+    --title-text: #2fa85a;
+    --hover-bg: var(--light-yellow);
+    --search-bg: #f3f8f5;
+    --link-color: #f3f8f5;
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+    --bg-color: #242424; /* Dark page background */
+    --card-bg: #242424;  /* Cards background */
+    --primary-color: #2fa85a;
+    --accent-color: #3f9e68;
+    --text-color: #e0e0e0; /* Clear text */
+    --text-muted: #aaaaaa; /* Secondary text */
+    --table-header-bg: #2a2a2a;
+    --upload-bg: #242424;
+    --flash-success: #2fa85a;
+    --flash-danger: #e53935;
+    --hover-bg: rgba(0,0,0,0.5);
+    --link-color: white;
+}
+
+h2 {
+  border-bottom: var(--table-header-bg);
+  color: var(--title-text)
+}
+
+body {
+    padding: 0px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Cards & Tables */
+.stat-card, .status-card, .upload-card, .scroll-table {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+#menuToggle {
+  display: none;
+}
+
+th {
+    background-color: var(--table-header-bg);
+    color: var(--table-text);
+}
+
+td {
+    color: var(--table-color);
+}
+
+tr {
+    background-color: var(--upload-bg);
+    transition: background 0.3s ease;
+  }
+
+tr:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Buttons */
+.btn-add, .btn-upload, .btn-logout, .btn-toggle {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-toggle {
+    background-color: transparent;
+    font-size: 1.5rem;
+    border-radius: 6px;
+}
+
+.btn-toggle:hover {
+    background-color: none;
+}
+
+.custom-file-label {
+    background: var(--upload-bg);
+    color: var(--text-color);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Flash messages */
+.flash.success { 
+  background: var(--flash-success);
+  color: white;
+}
+
+.flash.danger { 
+  background: var(--flash-danger);
+  color: white;
+}
+
+.dashboard-wrapper { 
+  padding: 2rem;
+  background: var(--bg-color);
+  font-family: Arial, sans-serif;
+    background: linear-gradient(120deg, #f9f1d4, #e6f2e6); /* goldish yellow to soft green */
+  overflow: hidden;
+}
+
+.dashboard-wrapper::before,
+        .dashboard-wrapper::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .dashboard-wrapper::before {
+            width: 500px;
+            height: 500px;
+            background: #d4af37; /* gold circle */
+            top: -100px;
+            right: -150px;
+        }
+
+        .dashboard-wrapper::after {
+            width: 400px;
+            height: 400px;
+            background: #1a3e2c; /* dark green circle */
+            bottom: -150px;
+            left: -100px;
+        }
+
+.dashboard-nav {    
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--primary-green);
+  padding: 1rem 2rem; 
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.nav-left { 
+  display: flex;
+  align-items: center;
+}   
+
+.nav-left h1 {
+  margin: 30px;
+  font-size: 25px; 
+}
+
+img {
+  height: 80px; 
+  width: 70px;
+  padding: 0px;
+  border: 2px solid var(--primary-yellow);
+  border-radius: 5px; 
+  margin: 20px; 
+}
+
+.nav-links { 
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  align-items: center;
+}
+
+.nav-links a {
+  font-size: 1.3rem;
+  color: var(--link-color);  
+  text-decoration: none; 
+  font-weight: 600;
+}
+
+.nav-links a:hover {
+  color:#a8e0bb
+}
+
+.nav-links a.active { 
+  text-decoration: underline; 
+}
+
+.btn-logout { 
+  background: #2fa85a; 
+  padding: 10px 12px; 
+  color: white;
+  border-radius: 8px; 
+  font-weight: 600; 
+  text-decoration: none; 
+}
+.btn-logout:hover {
+  background-color:#21883d;
+}
+
+.stats-section { 
+  margin-bottom: 2rem;
+ }
+
+.stats-section h2 {
+  font-size: 1.6rem;
+  color: var(--title-text);
+  margin-bottom: 1rem;
+}
+ 
+.dashboard-stats { 
+  display: flex; 
+  gap: 2rem; 
+  justify-content: center; 
+}
+
+.stat-card { 
+  background: var(--card-bg);
+  padding: 1.5rem 2rem;
+  border-radius: 12px; 
+  width: 180px; 
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1); 
+  text-align: center;
+ }
+
+p {
+  color: var(--text-color);
+}
+
+.stat-card h3 { 
+  margin: 0; 
+  font-size: 1.8rem;
+  color: var(--primary-green); 
+}
+.table-section { 
+  margin-bottom: 2rem; 
+}
+.scroll-table { 
+  max-height: 400px;
+  overflow-y: auto; 
+  margin-top: 1rem; 
+  background: white; 
+  border-radius: 12px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+}
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+th, td { 
+  padding: 20px; 
+  text-align: center; 
+  border-bottom: 1px solid var(--table-header-bg); 
+}
+th { 
+  background: var(--table-header-bg); 
+  font-weight: 600; 
+}
+input[type="text"] { 
+  padding: 5px 10px; 
+  border-radius: 8px; 
+  border: 1px solid #ccc; 
+  width: 100%; 
+  margin-bottom: 10px; 
+}
+.btn-add { 
+  background: #2196f3; 
+  color: white; 
+  padding: 8px 14px; 
+  border-radius: 8px; 
+  border: none; 
+  cursor: pointer;
+  font-weight: 600;
+ }
+.btn-add:hover { 
+  background: #1976d2; 
+}
+.upload-section {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+.status-section {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.status-section h2 {
+  font-size: 1.6rem;
+  color: var(--title-text);
+  margin-bottom: 1rem;
+}
+
+.status-cards {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.status-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  width: 180px;
+  box-shadow: 0 4px 15px (0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.status-card h3 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--primary-green);
+}
+
+.status-card p {
+  margin-top: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.status-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.upload-card {
+  border-radius: 18px;
+  padding: 2.5rem 3rem;
+  width: 60%;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.upload-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.upload-header h2 {
+  color: var(--primary-green);
+  font-size: 1.8rem;
+  margin-bottom: 0.3rem;
+}
+.upload-header p {
+  color: #444;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+.upload-icon {
+  font-size: 2.5rem;
+  color: var(--primary-green);
+  margin-bottom: 1rem;
+}
+
+.custom-file-label {
+  display: inline-block;
+  background: #eaf8ee;
+  border: 2px dashed var(--primary-green);
+  color: #2a703a;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.custom-file-label:hover {
+  background: #d7f3df;
+}
+
+.btn-upload {
+  margin-top: 1.5rem;
+  background: var(--primary-green);
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.btn-upload:hover {
+  background: #21883d;
+}
+
+.upload-tips {
+  margin-top: 1.5rem;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #555;
+}
+.upload-tips i {
+  color: var(--primary-green);
+  margin-right: 6px;
+}
+.search-container {
+  text-align: center;
+  margin: 2rem auto;
+  width: 60%;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  margin: 0 auto;
+  width: 50%;
+  align-items: center;
+  background: var(--search-bg);
+  border: 2px solid #d9e3e9;
+  border-radius: 50px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 0rem .5rem;
+  transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 8px rgba(47, 168, 90, 0.3);
+}
+
+.search-icon {
+  color: #aaa;
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.search-input {
+  margin: 10px auto;
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 0.5rem;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.82);
+}
+
+.clear-btn {
+  background: transparent;
+  font-size: 1.5rem;
+  color: #bbb;
+  cursor: pointer;
+  display: none;
+  padding: 0px;
+  transition: color 0.2s;
+  margin: 0px 10px 0px 10px;
+}
+
+.clear-btn:hover {
+  color: #ff4d4d;
+}
+
+.search-hint {
+  color: #777;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  display: block;
+}
+
+/* Sidebar */
+.menuToggle {
+  display: block !important;
+  cursor: pointer;
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  z-index: 900; /* BELOW overlay (1000), keep it clickable before overlay shows */
+  background: transparent;
+  border: none;
+  padding: 6px;
+  font-size: 1.4rem;
+  color: #fff;
+}  
+.fas.fa-bars::before {
+  font-size: 2rem;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0px;
+  left: 0;
+  min-height: 100vh;
+  height: 100vh;
+  width: 240px;
+  background: var(--primary-green);
+  color: white;
+  padding: 2rem 1.5rem;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 1200;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.active {
+  display: flex;
+  transform: translateX(0);
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 0;
+  font-weight: 500;
+}
+
+.sidebar div:hover {
+  text-decoration: none;
+  background-color: rgba(0,0,0,0.1);
+}
+
+.sidebar a:hover {
+  text-decoration: none;
+  margin-left: 10px;
+  transition: margin-left 0.3s ease;
+}
+
+.close-sidebar {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: none;
+}
+
+.overlay.active {
+  display: block;
+  opacity: 10;
+  pointer-events: all;
+}
+.sidebar {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+.flash-messages-container {
+    position: absolute;
+    top: 10px;
+  }
+
+  
+/* =====================================
+   Responsive Layout for Small Screens
+   ===================================== */
+@media (max-width: 800px) {
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    background: #f5f7fa;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  #menuToggle{
+    display: block;
+  }
+
+  .dashboard-wrapper {
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-sizing: border-box;
+  }
+
+  /* Navbar */
+  .dashboard-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 95%;
+    border-radius: 15px;
+    padding: 1rem;
+    margin: 15px;
+    background: var(--primary-green);
+    color: white;
+  }
+
+  .nav-left {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .nav-left h1 {
+    font-size: 1rem;
+    margin-top: 0.3rem;
+    line-height: 1.2;
+  }
+
+  .nav-left {
+    flex: 1;
+    min-width: 0; /* 🔑 REQUIRED for truncation in flexbox */
+  }
+
+  .nav-left h1 {
+    flex: 1;
+    min-width: 0;          /* 🔑 REQUIRED */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 3.5rem; /* space for hamburger */
+  }
+
+  .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0rem;
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+.nav-links a {
+  display: none;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #d1ffd8;
+}
+
+  .nav-links a, .btn-logout {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+
+  /* Stats */
+  .stats-section {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .dashboard-stats {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem 2rem; 
+    color: var(--card-bg);
+    margin: 0 auto;
+    max-width: 350px;
+    height: auto;
+
+  }
+  input[type="text"] { 
+    padding: 5px 10px;
+    margin: 0px;
+    font-size: 14px;
+  }
+
+
+  /* Upload Section */
+  .upload-section {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .upload-card {
+    min-width: 330px;
+    margin: 0px 10px 0px 10px;
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .upload-header h2 {
+    font-size: 1.1rem;
+    color: var(--title-text);
+  }
+
+  .upload-header p {
+    font-size: 0.9rem;
+  }
+
+  .custom-file-label {
+    font-size: 0.9rem;
+    padding: 0.7rem;
+  }
+
+  .btn-upload {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.8rem;
+  }
+
+
+  /* == MOBILE: force nav -> side panel on small screens == */
+@media (max-width: 800px) {
+  /* hide inline nav links and show hamburger */
+  .nav-links { display: none !important; }
+
+  /* make menuToggle visible & accessible */
+  #menuToggle {
+    display: block !important;
+    cursor: pointer;
+    position: absolute;
+    right: 16px;
+    top: 18px;
+    z-index: 1201; /* above overlay/sidebar */
+    background: transparent;
+    border: none;
+    padding: 6px;
+    font-size: 1.4rem;
+    color: #fff;
+  }
+
+  /* ensure the logo/title stays readable when hamburger shown */
+  .dashboard-nav { position: relative; padding-right: 64px; }
+
+  /* Sidebar should slide over content and occupy full height on small screens */
+  .sidebar {
+    width: 260px;
+    max-width: 85vw;
+    transform: translateX(-100%);
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 2px 0 18px rgba(0,0,0,0.35);
+  }
+
+  /* When active, sidebar covers content from the left */
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  /* overlay should be visible when active and cover page */
+  .overlay {
+    display: block;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .overlay.active { opacity: 1; }
+
+  /* keep close button clearly visible */
+  .close-sidebar {
+    color: #fff;
+    background: transparent;
+    font-size: 2rem;
+  }
+
+  /* Slight spacing tweak inside sidebar for mobile */
+  .sidebar a {
+    padding: 0.6rem 0;
+    display: block; 
+    font-size: 1.1rem;
+  }
+
+  .search-box { 
+    margin: 0px;
+   }
+}
+
+  /* Search */
+  .search-container {
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .search-box {
+    width: 100%;
+    border-radius: 10px;
+    padding: 5px;
+  }
+
+  .search-input {
+    font-size: 1rem;
+    margin: 0px auto;
+    padding: 10px;
+  }
+
+  /* Tables */
+  .table-section {
+    width: 100%;
+    overflow-x: auto;
+    flex: 1;
+  }
+
+  .scroll-table {
+    width: 100%;
+    max-height: calc(100vh - 450px);
+    overflow-y: auto;
+  }
+
+  table {
+    width: 100%;
+    font-size: 0.85rem;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 6px 4px;
+  }
+
+  
+  /* Flash messages */
+  .flash-messages {
+    width: 100%;
+    margin: 0;
+  }
+
+  /* General Text */
+  .dashboard-wrapper, .upload-card, .stat-card, .table-section {
+    color: #111;
+    line-height: 1.4;
+    font-size: 0.9rem;
+  }
+}
+th, td { 
+  padding: 20px; 
+  text-align: center; 
+  border-bottom: 1px solid var(--table-header-bg); 
+}
+
+/* Even smaller devices (max-width: 450px) */
+@media (max-width: 450px) {
+  .dashboard-nav {
+    padding: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    max-width: 430px;
+    flex-wrap: nowrap;
+  }
+
+.nav-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-left img,
+.logo {
+  height: 48px;        /* ideal navbar height */
+  width: auto;         /* preserve aspect ratio */
+  object-fit: contain;
+  margin: 0;
+}
+
+.nav-left h1 {
+  font-size: 1rem;
+  margin: 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upload-section {
+  margin: 0 auto;
+  padding: 0.5rem;
+  max-width: 300px;
+}
+  .nav-left h1 {
+    font-size: 1.2rem;
+    margin: 10px;
+  }
+
+  .stat-card h3 {
+    font-size: 2rem;
+  }
+
+  .stat-card p {
+    font-size: 1.2rem;
+  }
+
+  .upload-card {
+    max-width: 350px;
+    padding: 1rem;
+  }
+
+  .upload-header h2 {
+    font-size: 1rem;
+  }
+
+  .search-input {
+    font-size: 0.9rem;
+  }
+
+  table {
+    font-size: 1rem;
+  }
+
+  .btn-upload {
+    width: 150px;
+  }
+
+  .search-box {
+    margin: 0 auto;
+  }
+
+.search-container .search-box {
+    width: 80%;
+    margin: 20px;
+  }
+
+  .scroll-table {
+    margin: 10px auto;
+    width: 350px;
+  }
+
+  .flash-messages-container {
+    position: absolute;
+    top: 10px;
+  }
+
+
+}
+
+</style>
+
+<div class="dashboard-wrapper">
+  <!-- Navbar -->
+  <div class="dashboard-nav">
+    <div class="nav-left">
+      <a href="{{ url_for('main.landing') }}">
+        <img src="{{ url_for('static', filename='Images/Pofa.jpg') }}" alt="FOPA Logo" class="logo">
+      </a>
+      <h1 style="min-width: 0; flex: 1;">{{ school.school_name }} Dashboard</h1>
+        <div class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+    </div>
+
+    </div>
+    
+    <ul class="nav-links">
+      <li><a href="#upload">Upload</a></li>
+      <li><a href="#students">Students</a></li>
+      <li><a href="#stats">Stats</a></li>
+      <li><a href="#footer">Help</a></li>
+      <li><a href="{{ url_for('auth.logout') }}" class="btn-logout" style="color: white">Logout</a></li>
+       <li>
+    <div id="themeToggle" class="btn-toggle">
+      <i class="fas fa-moon"></i>
+    </div>
+  </li>
+    </ul>
+  </div>
+ <div class="sidebar" id="sidebarMenu">  
+  <i class="fas fa-times close-sidebar" id="closeSidebar"></i>
+  <div><a href="#upload">Upload</a></div>
+  <div><a href="#students">Students</a></div>
+  <div><a href="#stats">Stats</a></div>
+  <div><a href="#footer">Help</a></div>
+
+<!-- Sidebar Search -->
+  <div class="search-box">
+    <input type="text" id="pageSearchSide" class="search-input" style="border: none;" placeholder="Search students...">
+    <i class="fas fa-search search-icon"></i>
+    <div id="clearSearch" class="clear-btn" style="border: none;" title="Clear search">&times;</div>
+  </div>
+  <ul id="searchResultsSide" class="search-results"></ul>
+    <div  class="btn-logout"><a href="{{ url_for('auth.logout') }}">Logout</a></div>
+  </div>
+
+  <!-- General Stats -->
+  <div class="stats-section">
+    <h2>Statistics</h2>
+    <div class="dashboard-stats">
+      <div class="stat-card">
+        <h3 data-target="{{ accounts|length }}">0</h3>
+        <p>Total Students</p>
+      </div>
+      <div class="stat-card">
+        <h3 data-target="{{ results|length }}">0</h3>
+        <p>Total Test Results</p>
+      </div>
+    </div>
+  </div>
+
+<!-- School Dashboard Status -->
+<div class="status-section">
+  <h2>Account & Upload Status</h2>
+  <div class="status-cards">
+    <!-- Payment Status -->
+    <div class="status-card">
+      <h3>{{ 'Paid' if school.upload_enabled else 'Pending' }}</h3>
+      <p>Subscription Payment</p>
+    </div>
+
+    <!-- Upload Access -->
+    <div class="status-card">
+      <h3>{{ 'Enabled' if school.upload_enabled else 'Disabled' }}</h3>
+      <p>Upload Access</p>
+    </div>
+  </div>
+</div>
+
+  <!-- Upload Students -->
+<div class="upload-section">
+  <div class="upload-card">
+    <div class="upload-header">
+      <i class="fas fa-upload upload-icon"></i>
+      <h2 id="upload">Upload Students</h2>
+      <p>Upload your student spreadsheet to automatically create accounts for them.</p>
+    </div>
+    <form action="{{ url_for('main.upload_students') }}" method="POST" enctype="multipart/form-data">
+      <label for="file-upload" class="custom-file-label">
+        <i class="fas fa-file-excel"></i> Choose Excel File
+      </label>
+      <input id="file-upload" type="file" name="file" accept=".xlsx, .xls" required hidden {% if not upload_enabled %}disabled{% endif %}>
+      <br><button type="submit" class="btn-upload" {% if not upload_enabled %}disabled{% endif %}>
+        <i class="fas fa-cloud-upload-alt"></i> Upload Students
+      </button>
+    </form>
+
+{% if not upload_enabled %}
+<p style="color:red;">Upload is disabled. Please wait until your subscription/payment is confirmed. <br> If payment is yet to be made please contact us at +233(0) 55 743 0188</p>
+{% endif %}
+
+
+    <div class="upload-tips">
+      <p><i class="fas fa-info-circle"></i> Accepted formats: <b>.xlsx</b>, <b>.xls</b></p>
+      <p><i class="fas fa-lightbulb"></i> Tip: Make sure your columns match the required template format.</p>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Students Table -->
+  <div class="table-section">
+    <h2 id="students">Students</h2>
+<!-- Improved Student Search -->
+<div class="search-container">
+  <div class="search-box">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" id="studentSearch" class="search-input" style="border: none;" placeholder="Search students...">
+    <div id="clearSearch" class="clear-btn" style="border: none;" title="Clear search">&times;</div>
+  </div>
+  <small class="search-hint">Type a student's name or username to filter results.</small>
+</div>
+    <div class="scroll-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>First Name</th><th>Last Name</th><th>Username</th><th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if accounts %}
+          {% for student in accounts %}
+          <tr>
+            <td>{{ student.id }}</td>
+            <td>{{ student.fname }}</td>
+            <td>{{ student.lname }}</td>
+            <td>{{ student.username }}</td>
+            <td>{{ student.email }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="5">No students available</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<!-- Test Results Table -->
+<div class="table-section">
+  <h2>Test Results</h2>
+  <div class="scroll-table">
+    <table class="modern-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Test Type</th>
+          <th>Score</th>
+          <th>Date Taken</th>
+          <th>Feedback</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if results %}
+          {% for result in results %}
+          <tr>
+            <td>{{ result.account.fname }} {{ result.account.lname }}</td>
+            <td>{{ result.test_type }}</td>
+            <td>{{ result.score }}{% if result.max_score %}/{{ result.max_score }}{% endif %}</td>
+            <td>{{ result.taken_at.strftime('%Y-%m-%d %H:%M') if result.taken_at else '' }}</td>
+            <td>
+              {% if result.feedback %}
+                <span class="feedback-bubble">{{ result.feedback }}</span>
+              {% else %}
+                <span class="no-feedback">No feedback</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="5">No test results available</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- Stage Counts -->
+<div class="stats-section">
+  <h2 id="stats">Stages (This Month)</h2>
+  <div class="dashboard-stats">
+    {% if stage_counts %}
+      {% for stage, count in stage_counts.items() %}
+        {% set stage_class = stage.lower().replace(' ', '-') %}
+        <!-- Handle variations like 'counselling/clinical' -->
+        {% if 'clinical' in stage_class or 'counselling' in stage_class %}
+          {% set stage_class = 'clinical-stage' %}
+        {% endif %}
+        <div class="stat-card stage-indicator {{ stage_class }}">
+          <h3 data-target="{{ count }}">0</h3>
+          <p class="stage-indicator {{ stage_class }}">{{ stage }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No stages recorded this month.</p>
+    {% endif %}
+  </div>
+</div>
+
+</div>
+
+<!-- Scripts -->
+<script>
+document.getElementById('studentSearch').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    document.querySelectorAll('#studentTable tbody tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+    });
+});
+
+// Stats counting animation
+document.addEventListener("DOMContentLoaded", () => {
+  const counters = document.querySelectorAll(".stat-card h3");
+  counters.forEach(counter => {
+    const target = +counter.getAttribute("data-target");
+    let current = 0;
+    const duration = 1500;
+    const stepTime = 20;
+    const steps = Math.ceil(duration / stepTime);
+    const increment = target / steps;
+    const updateCount = () => {
+      current += increment;
+      if (current < target) {
+        counter.innerText = Math.ceil(current).toLocaleString();
+        setTimeout(updateCount, stepTime);
+      } else {
+        counter.innerText = target.toLocaleString();
+      }
+    };
+    updateCount();
+  });
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    const flashes = document.querySelectorAll(".flash");
+    setTimeout(() => {
+        flashes.forEach(flash => {
+            flash.style.transition = "opacity 0.5s ease";
+            flash.style.opacity = "0";
+            setTimeout(() => flash.remove(), 500);
+        });
+    }, 3000);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const counters = document.querySelectorAll(".stat-card h3");
+  let animated = false; // ensure animation runs only once
+
+  function animateCounters() {
+    counters.forEach(counter => {
+      const target = +counter.getAttribute("data-target");
+      let current = 0;
+      const duration = 1500;
+      const stepTime = 20;
+      const steps = Math.ceil(duration / stepTime);
+      const increment = target / steps;
+
+      const updateCount = () => {
+        current += increment;
+        if (current < target) {
+          counter.innerText = Math.ceil(current).toLocaleString();
+          setTimeout(updateCount, stepTime);
+        } else {
+          counter.innerText = target.toLocaleString();
+        }
+      };
+      updateCount();
+    });
+  }
+
+  function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+      rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.bottom >= 0
+    );
+  }
+
+  function checkScroll() {
+    const stageSection = document.querySelector(".stats-section:last-of-type"); // last stats-section = stages
+    if (!animated && stageSection && isElementInViewport(stageSection)) {
+      animateCounters();
+      animated = true;
+      window.removeEventListener("scroll", checkScroll);
+    }
+  }
+
+  window.addEventListener("scroll", checkScroll);
+  checkScroll(); // initial check in case already in view
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("sidebarMenu");
+  const overlay = document.getElementById("overlay");
+  const menuToggle = document.getElementById("menuToggle");
+  const closeSidebar = document.getElementById("closeSidebar");
+
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+  });
+
+  closeSidebar.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+  });
+});
+
+  // Enhanced Student Search Functionality
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("studentSearch");
+  const clearBtn = document.getElementById("clearSearch");
+  const rows = document.querySelectorAll(".table-section table tbody tr");
+
+  searchInput.addEventListener("keyup", function() {
+    const filter = this.value.toLowerCase();
+    rows.forEach(row => {
+      row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
+    });
+    clearBtn.style.display = this.value ? "block" : "none";
+  });
+
+  clearBtn.addEventListener("click", function() {
+    searchInput.value = "";
+    rows.forEach(row => row.style.display = "");
+    this.style.display = "none";
+  });
+});
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const fileInput = document.getElementById("file-upload");
+    const fileLabel = document.querySelector(".custom-file-label");
+    const originalLabelHTML = fileLabel.innerHTML; // store the original label with icon
+
+    fileInput.addEventListener("change", function() {
+      if (this.files && this.files.length > 0) {
+        const fileName = this.files[0].name;
+        fileLabel.innerHTML = `<i class="fas fa-file-excel"></i> ${fileName}`;
+      } else {
+        fileLabel.innerHTML = originalLabelHTML;
+      }
+    });
+  });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.getElementById("themeToggle");
+    const body = document.body;
+    const icon = toggleBtn.querySelector("i");
+
+    // Load saved preference
+    if(localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        if(body.classList.contains('dark-mode')) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+});
+
+/* small safety handler: ensure menu toggle and overlay behave on small screens */
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebarMenu");
+  const overlay = document.getElementById("overlay");
+  const closeSidebar = document.getElementById("closeSidebar");
+
+  if (!menuToggle || !sidebar || !overlay) return;
+
+  // open sidebar
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+    // optional: lock body scroll while sidebar open
+    document.body.style.overflow = "hidden";
+  });
+
+  // close sidebar (close button)
+  if (closeSidebar) {
+    closeSidebar.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+      document.body.style.overflow = "";
+    });
+  }
+
+  // close when clicking overlay
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+    document.body.style.overflow = "";
+  });
+
+  // close on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && sidebar.classList.contains("active")) {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  });
+});
+
+
+</script>
+
+{% endblock %}

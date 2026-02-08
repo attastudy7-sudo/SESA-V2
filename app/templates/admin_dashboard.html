@@ -1,0 +1,1141 @@
+{% extends 'base.html' %}
+{% block title %}Super Admin Dashboard{% endblock %}
+
+{% block body %}
+
+<div class="dashboard-wrapper">
+
+  <!-- Navbar -->
+  <div class="dashboard-nav">
+    <div class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="nav-left">
+      <a href="{{ url_for('main.landing') }}">
+        <img src="{{ url_for('static', filename='Images/Pofa.jpg') }}" alt="FOPA Logo" class="logo">
+      </a>
+      <h1>Super Admin Dashboard</h1>
+    </div>
+
+    <!-- Navigation Links & Search -->
+    <ul class="nav-links">
+      <li><a href="#all_accounts">Accounts</a></li>
+      <li><a href="#all_schools">Schools</a></li>
+      <li><a href="#question_database">Questions</a></li>
+      <li><a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a></li>
+      <li>
+    <div id="menuToggle" class="btn-toggle">
+    </div>
+  </li>
+  
+    </ul>
+
+<!-- Navbar Search -->
+  <div class="search-box">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" id="pageSearchTop" class="search-input" style="border: none;" placeholder="Search students...">
+    <div id="clearSearch" class="clear-btn" style="border: none;" title="Clear search">&times;</div>
+  </div>
+<ul id="searchResultsTop" class="search-results"></ul>
+
+  </div>
+  <div class="sidebar" id="sidebarMenu">
+  <i class="fas fa-times close-sidebar" id="closeSidebar"></i>
+  <a href="#all_accounts">Accounts</a>
+  <a href="#all_schools">Schools</a>
+  <a href="#question_database">Questions</a>
+<!-- Sidebar Search -->
+ <div class="search-box">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" id="pageSearchSide" class="search-input" style="border: none;" placeholder="Search students...">
+    <div id="clearSearch" class="clear-btn" style="border: none;" title="Clear search">&times;</div>
+  </div>
+<ul id="searchResultsSide" class="search-results"></ul>
+  <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-messages">
+      {% for category, message in messages %}
+        <div id="flash-container" class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+  <!-- General Statistics -->
+  <div class="stats-section">
+    <h2>General Statistics</h2>
+    <div class="dashboard-stats">
+      <div class="stat-card"><h3 data-target="{{ total_schools }}">0</h3><p>Total Schools</p></div>
+      <div class="stat-card"><h3 data-target="{{ total_tests }}">0</h3><p>Total Tests</p></div>
+      <div class="stat-card"><h3 data-target="{{ total_users }}">0</h3><p>Total Users</p></div>
+    </div>
+  </div>
+
+  <!-- All Accounts -->
+  <div class="table-section" id="all_accounts">
+    <h2>All Accounts</h2>
+    <div class="scroll-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th>
+            <th>Username</th><th>Birthdate</th><th>Level</th><th>Gender</th>
+            <th>Created At</th><th>Password</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if accounts %}
+          {% for account in accounts %}
+          <tr>
+            <td>{{ account.id }}</td>
+            <td>{{ account.fname }}</td>
+            <td>{{ account.lname }}</td>
+            <td>{{ account.email }}</td>
+            <td>{{ account.username }}</td>
+            <td>{{ account.birthdate }}</td>
+            <td>{{ account.level }}</td>
+            <td>{{ account.gender }}</td>
+            <td>{{ account.created_at }}</td>
+            <td><div class="overflow-cell">{{ account.password }}</div></td>
+            <td>
+              <div class="action-buttons">
+                <form action="{{ url_for('main.edit_account', account_id=account.id) }}" method="GET">
+                  <button class="btn-edit" type="submit">Edit</button>
+                </form>
+                <form action="{{ url_for('main.delete_account', account_id=account.id) }}" method="POST">
+                  <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this account?');">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="12">No accounts available</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- All Schools -->
+  <div class="table-section" id="all_schools">
+    <h2>All Schools</h2>
+    <div class="scroll-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Admin</th><th>Created At</th><th>Password</th><th>Upload Access</th><th>Toggle Upload</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if school %}
+          {% for s in school %}
+          <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.school_name }}</td>
+            <td>{{ s.email }}</td>
+            <td>{{ s.admin_name }}</td>
+            <td>{{ s.created_at }}</td>
+            <td><div class="overflow-cell">{{ s.admin_password }}</div></td>
+            <td>{{ "Enabled" if s.upload_enabled else "Disabled" }}</td>
+            <td>
+              <form action="{{ url_for('main.toggle_upload', school_id=s.id) }}" method="POST">
+                <button type="submit" class="btn-edit">
+                  {{ "Disable" if s.upload_enabled else "Enable" }}
+                </button>
+              </form>
+            </td>
+            
+            <td>
+              <div class="action-buttons">
+                <form action="{{ url_for('main.edit_school', school_id=s.id) }}" method="GET">
+                  <button class="btn-edit" type="submit">Edit</button>
+                </form>
+                <form action="{{ url_for('main.delete_school', school_id=s.id) }}" method="POST">
+                  <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this school?');">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="9">No schools available</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Questions Database -->
+  <div class="table-section" id="question_database">
+    <h2>Questions Database
+      
+    </h2>
+    <div class="scroll-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Test Type</th><th>Question Content</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if questions %}
+          {% for q in questions %}
+          <tr>
+            <td>{{ q.id }}</td>
+            <td>{{ q.test_type }}</td>
+            <td class="text-left">{{ q.question_content }}</td>
+            <td>
+              <div class="action-buttons">
+                <form action="{{ url_for('main.edit_question', id=q.id) }}" method="GET">
+                  <button class="btn-edit" type="submit">Edit</button>
+                </form>
+                <form action="{{ url_for('main.delete_question', id=q.id) }}" method="POST">
+                  <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this question?');">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="4"> No questions available</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div><br>
+    <form action="{{ url_for('main.add_question') }}" method="GET" style="display:inline;">
+        <button class="btn-add" type="submit">Add Question</button>
+      </form>
+
+  </div>
+  <!-- Stage-wise Test Results -->
+<div class="stats-section" id="stage_stats">
+    <h2>Test Results by Stage</h2>
+    <div class="dashboard-stats">
+        {% for stage, count in stage_counts.items() %}
+        <div class="stat-card">
+            <h3 data-target="{{ count }}">0</h3>
+            <p>{{ stage }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="graph"></div>
+
+
+</div>
+
+<style>
+
+body {
+  padding: 0px;
+}
+
+.dashboard-wrapper {
+  padding: 2rem;
+  background: #f5f7fa;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--primary-green);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.nav-left {
+  display: inline-flex;
+  align-items: center;
+}   
+.nav-left h1 { margin-left: 1rem; font-size: 24px; }
+
+.nav-links { display: flex; gap: 1rem; list-style: none; align-items: center; }
+
+.nav-links a { color: white; text-decoration: none; font-weight: 600; }
+
+.nav-links a:hover, .nav-links a.active { text-decoration: underline; }
+
+.nav-links .btn-logout:hover { text-decoration: none; }
+
+.scroll-table { max-height: 400px; overflow-y: auto; margin-top: 1rem; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+table { width: 100%; border-collapse: collapse; min-width: 800px; }
+
+th, td { padding: 10px; text-align: center; border-bottom: 1px solid #ddd; }
+
+th { background: #aab4ac; font-weight: 600; }
+
+.text-left { text-align: left; }
+
+.overflow-cell { max-width: 180px; overflow-x: auto; }
+
+.action-buttons { display: flex; gap: 0.5rem; justify-content: center; }
+
+.btn-edit, .btn-delete, .btn-add, .btn-logout {
+  padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600;
+}
+.search-results {
+  position: absolute;       /* overlay on page */
+  color: #a7a5a5 ;
+  top: 100px;                /* adjust based on nav height */
+  right: 20px;              /* align with input if needed */
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  width: 250px;             /* or match input width */
+  z-index: 9999;
+  display: none;            /* hidden by default */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.search-results li:hover {
+  background: #f0f0f0;
+}
+
+
+.btn-edit { background: #4caf50; color: white; }
+.btn-edit:hover { background: #45a049; }
+
+.btn-delete { background: #f44336; color: white; }
+.btn-delete:hover { background: #da2c2c; }
+
+.btn-add { background: #2196f3; color: white; }
+.btn-add:hover { background: #1976d2; }
+
+.btn-logout {  background: var(--primary-green); color: white; }
+.btn-logout:hover {text-decoration: none;  background: #2fa85a; }
+
+.stats-section { margin-bottom: 2rem; }
+
+.dashboard-stats { display: flex; gap: 2rem; justify-content: center; }
+
+.stat-card { background: white; padding: 1.5rem 2rem; border-radius: 12px; width: 180px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+
+.stat-card h3 { margin: 0; font-size: 1.8rem; color: var(--primary-green); }
+
+.table-section h2 { margin-bottom: 1rem; }
+
+.logout-section { text-align: center; margin-top: 2rem; }
+
+/* General Dashboard Styling */
+.dashboard-wrapper {
+  font-family: "Inter", Arial, sans-serif;
+  background: linear-gradient(135deg, #f8fafb, #e9f5ec);
+  color: #222;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+/* Navbar */
+.dashboard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(41, 158, 78, 0.95);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+.search-box {
+  position: relative;
+  display: flex;
+  margin: 0;
+  width: 20%;
+  align-items: center;
+  background: white;
+  border: 2px solid #d9e3e9;
+  border-radius: 50px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 0rem .5rem;
+  transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 8px rgba(47, 168, 90, 0.3);
+}
+
+.search-icon {
+  color: #aaa;
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.search-input {
+  margin: 0px auto;
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 0.5rem;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.82);
+}
+
+.clear-btn {
+  background: transparent;
+  font-size: 1.5rem;
+  color: #bbb;
+  cursor: pointer;
+  display: none;
+  padding: 0px;
+  transition: color 0.2s;
+  margin: 0px 10px 0px 10px;
+}
+
+.clear-btn:hover {
+  color: #ff4d4d;
+}
+
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.logo {
+  height: 48px;
+  border-radius: 8px;
+}
+
+.nav-left h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #d1ffd8;
+}
+
+/* Search */
+.search {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: white;
+  color: #333;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.search:focus {
+  box-shadow: 0 0 0 3px rgba(41, 158, 78, 0.2);
+}
+
+/* Stats Section */
+.stats-section {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.stats-section h2 {
+  color: #333;
+  margin-bottom: 1.2rem;
+  font-size: 1.6rem;
+}
+
+.dashboard-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 200px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card h3 {
+  color: var(--primary-green);
+  font-size: 2rem;
+  margin: 0;
+}
+
+.stat-card p {
+  margin-top: 0.5rem;
+  color: #666;
+}
+
+/* Table Styling */
+.table-section {
+  margin-top: 2.5rem;
+}
+
+.table-section h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 0.8rem;
+}
+
+.scroll-table {
+  overflow-x: auto;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+th {
+  background: #cde3d1;
+  color: #333;
+}
+
+td {
+  color: #444;
+}
+
+.overflow-cell {
+  max-width: 150px;
+  overflow-x: auto;
+}
+
+/* Buttons */
+.btn-edit, .btn-delete, .btn-add, .btn-logout {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-edit { background: #4caf50; color: white; }
+.btn-edit:hover { background: #43a047; }
+
+.btn-delete { background: #f44336; color: white; }
+.btn-delete:hover { background: #d32f2f; }
+
+.btn-add { background: #2196f3; color: white; }
+.btn-add:hover { background: #1976d2; }
+
+.btn-logout { background: #2fa85a; color: white; }
+.btn-logout:hover { background: #26894b; }
+
+/* 🧭 Sidebar */
+.menu-toggle {
+  display: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  background: transparent;
+  color: var(--primary-green);
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.sidebar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 240px;
+  background: var(--primary-green);
+  color: white;
+  padding: 2rem 1.5rem;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 1100;
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+
+.sidebar.active {
+  display: flex;
+  transform: translateX(0);
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 0;
+  font-weight: 500;
+}
+
+.sidebar a:hover {
+  text-decoration: underline;
+}
+
+.close-sidebar {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* Overlay */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.sidebar {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+/* 📱 Responsive layout for smaller screens (700px → 380px) */
+@media (max-width: 800px) {
+  .logo {
+width: 60px;
+height: auto;
+  }
+
+  .search-box{
+    width: 90%;
+    border-radius: 10px;
+
+  }
+
+  .search-results {
+    top: 250px;                /* adjust based on nav height */
+  }
+  /* ✅ General layout fixes */
+  body, html {
+    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .dashboard-nav .search-box {
+    display: none;
+  }
+  
+  .nav-links {
+    display: none;
+  }
+
+  .login-wrapper {
+    padding: 1rem;
+    height: 100vh;
+    background: linear-gradient(135deg, #e8f3ef, #f5f7fa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-card {
+    width: 95%;
+    max-width: 380px;
+    padding: 1.8rem;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    background: white;
+  }
+
+  .login-header img.login-logo {
+    height: 60px;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-header h1 {
+    font-size: 1.7rem;
+  }
+
+  .login-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  /* ✅ Form adjustments */
+  .login-form {
+    gap: 1rem;
+  }
+
+  #box1 {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 10px 35px 10px 10px;
+  }
+
+  .input-container i {
+    right: 10px;
+  }
+
+  label {
+    font-size: 0.9rem;
+  }
+
+  #btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .forgot-link {
+    font-size: 0.85rem;
+  }
+
+  .signup-link {
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  /* ✅ Optional sidebar (hamburger) for small screens */
+  .menu-toggle {
+    display: block;
+    position: absolute;
+    top: 20px;
+    right: 18px;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    z-index: 1100;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 75%;
+    max-width: 250px;
+    height: 100vh;
+    background: var(--primary-green, #2fa85a);
+    color: white;
+    padding: 2rem 1.5rem;
+    transition: left 0.3s ease-in-out;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar a:hover {
+    color: #d9ffd6;
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+  }
+
+  .overlay.active {
+    display: block;
+  }
+}
+
+@media (max-width: 500px) {
+  .nav-left img {
+    width: 50px;
+    height: auto;
+  }
+  .nav-left h1 {
+    font-size: 18px;
+  }
+
+  .menu-toggle {
+    top: 20px;
+    font-size: 2rem;
+ }
+  .login-card {
+    padding: 1.5rem;
+    max-width: 340px;
+  }
+
+  .login-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .login-header h2 {
+    font-size: 1rem;
+  }
+
+  #box1 {
+    font-size: 0.85rem;
+  }
+
+  #btn {
+    font-size: 0.95rem;
+    padding: 9px;
+  }
+
+  .form-options {
+    font-size: 0.8rem;
+  }
+
+  .sidebar {
+    width: 85%;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-card {
+    width: 100%;
+    padding: 1.2rem;
+    border-radius: 10px;
+  }
+
+  .login-header img.login-logo {
+    height: 50px;
+  }
+
+  .login-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .login-header h2 {
+    font-size: 0.95rem;
+  }
+
+  #btn {
+    padding: 8px;
+  }
+}
+
+</style>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+    const flashes = document.querySelectorAll(".flash");
+    setTimeout(() => {
+        flashes.forEach(flash => {
+            flash.style.transition = "opacity 0.5s ease";
+            flash.style.opacity = "0";
+            setTimeout(() => flash.remove(), 500);
+        });
+    }, 3000);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("pageSearch");
+    const searchResults = document.getElementById("searchResults");
+    const clearBtn = document.getElementById("clearSearch");
+
+    // Query all searchable rows
+    const accountsRows = document.querySelectorAll("#all_accounts table tbody tr");
+    const schoolsRows = document.querySelectorAll("#all_schools table tbody tr");
+    const questionsRows = document.querySelectorAll("#question_database table tbody tr");
+
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        searchResults.innerHTML = "";
+
+
+
+        if (!query) {
+            searchResults.style.display = "none";
+            return;
+        }
+
+        const results = [];
+
+        // Search accounts
+        accountsRows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            const firstName = cells[1]?.textContent.toLowerCase() || "";
+            const lastName = cells[2]?.textContent.toLowerCase() || "";
+            const username = cells[4]?.textContent.toLowerCase() || "";
+            if (firstName.includes(query) || lastName.includes(query) || username.includes(query)) {
+                results.push({
+                    element: row,
+                    text: `${cells[1]?.textContent} ${cells[2]?.textContent} (Account)`
+                });
+            }
+        });
+
+        // Search schools
+        schoolsRows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            const schoolName = cells[1]?.textContent.toLowerCase() || "";
+            const adminName = cells[3]?.textContent.toLowerCase() || "";
+            if (schoolName.includes(query) || adminName.includes(query)) {
+                results.push({
+                    element: row,
+                    text: `${cells[1]?.textContent} (School)`
+                });
+            }
+        });
+
+        // Search questions
+        questionsRows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            const testType = cells[0]?.textContent.toLowerCase() || "";
+            const questionContent = cells[1]?.textContent.toLowerCase() || "";
+            if (testType.includes(query) || questionContent.includes(query)) {
+                results.push({
+                    element: row,
+                    text: `${cells[1]?.textContent.slice(0, 50)}... (Question)`
+                });
+            }
+        });
+
+        // Render results
+        results.forEach(r => {
+            const li = document.createElement("li");
+            li.textContent = r.text;
+            li.style.padding = "5px 10px";
+            li.style.cursor = "pointer";
+            li.addEventListener("click", () => {
+                r.element.scrollIntoView({behavior: "smooth", block: "center"});
+                searchResults.style.display = "none";
+                searchInput.value = "";
+            });
+            searchResults.appendChild(li);
+        });
+
+        searchResults.style.display = results.length ? "block" : "none";
+    });
+
+    // Hide dropdown if clicking outside
+    document.addEventListener("click", (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.style.display = "none";
+        }
+    });
+
+    
+
+      clearBtn.addEventListener("click", function() {
+    searchInput.value = "";
+    rows.forEach(row => row.style.display = "");
+    this.style.display = "none";
+  });
+
+});
+
+// Counting animation for stats
+document.addEventListener("DOMContentLoaded", () => {
+  const counters = document.querySelectorAll(".stat-card h3");
+  
+  counters.forEach(counter => {
+    const target = +counter.getAttribute("data-target");
+    let current = 0;
+    const duration = 1500; // total animation duration in ms
+    const stepTime = 20;   // update interval in ms
+    const steps = Math.ceil(duration / stepTime);
+    const increment = target / steps;
+
+    const updateCount = () => {
+      current += increment;
+      if (current < target) {
+        counter.innerText = Math.ceil(current).toLocaleString();
+        setTimeout(updateCount, stepTime);
+      } else {
+        counter.innerText = target.toLocaleString();
+      }
+    };
+
+    updateCount();
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchPairs = [
+    { input: document.getElementById("pageSearchTop"), results: document.getElementById("searchResultsTop") },
+    { input: document.getElementById("pageSearchSide"), results: document.getElementById("searchResultsSide") }
+  ];
+
+  const accountsRows = document.querySelectorAll("#all_accounts table tbody tr");
+  const schoolsRows = document.querySelectorAll("#all_schools table tbody tr");
+  const questionsRows = document.querySelectorAll("#question_database table tbody tr");
+
+  const removeHighlights = () => {
+    document.querySelectorAll("tr").forEach(row => row.style.backgroundColor = "");
+  };
+
+  function handleSearch(input, resultsBox) {
+    input.addEventListener("input", () => {
+      const query = input.value.toLowerCase();
+      resultsBox.innerHTML = "";
+      removeHighlights();
+
+      if (!query) {
+        resultsBox.style.display = "none";
+        return;
+      }
+
+      const results = [];
+
+      // Accounts
+      accountsRows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const first = cells[1]?.textContent.toLowerCase() || "";
+        const last = cells[2]?.textContent.toLowerCase() || "";
+        const user = cells[4]?.textContent.toLowerCase() || "";
+        if (first.includes(query) || last.includes(query) || user.includes(query)) {
+          results.push({ element: row, text: `${cells[1]?.textContent} ${cells[2]?.textContent} (Account)` });
+        }
+      });
+
+      // Schools
+      schoolsRows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const name = cells[1]?.textContent.toLowerCase() || "";
+        const admin = cells[3]?.textContent.toLowerCase() || "";
+        if (name.includes(query) || admin.includes(query)) {
+          results.push({ element: row, text: `${cells[1]?.textContent} (School)` });
+        }
+      });
+
+      // Questions
+      questionsRows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const type = cells[1]?.textContent.toLowerCase() || "";
+        const question = cells[2]?.textContent.toLowerCase() || "";
+        if (type.includes(query) || question.includes(query)) {
+          results.push({ element: row, text: `${cells[2]?.textContent.slice(0, 50)}... (Question)` });
+        }
+      });
+
+      // Render
+      results.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = r.text;
+        li.style.padding = "6px 10px";
+        li.style.cursor = "pointer";
+        li.addEventListener("click", () => {
+          removeHighlights();
+          r.element.scrollIntoView({ behavior: "smooth", block: "center" });
+          r.element.style.backgroundColor = "#fff59d"; // highlight
+          resultsBox.style.display = "none";
+          input.value = "";
+        });
+        resultsBox.appendChild(li);
+      });
+
+      resultsBox.style.display = results.length ? "block" : "none";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!input.contains(e.target) && !resultsBox.contains(e.target)) {
+        resultsBox.style.display = "none";
+      }
+    });
+  }
+
+  // Attach handlers to both search inputs
+  searchPairs.forEach(({ input, results }) => {
+    if (input && results) handleSearch(input, results);
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("sidebarMenu");
+  const overlay = document.getElementById("overlay");
+  const menuToggle = document.getElementById("menuToggle");
+  const closeSidebar = document.getElementById("closeSidebar");
+
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+  });
+
+  closeSidebar.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+  });
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Question{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 800px; margin: 40px auto;">
+    <div class="card" style="padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 12px;">
+        <h2 style="text-align:center; margin-bottom: 25px;">Edit Question</h2>
+
+        <form action="{{ url_for('main.edit_question', id=question.id) }}" method="POST" class="edit_question_form" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Test Type -->
+            <div>
+                <label for="test_type" style="font-weight: 600;">Test Type</label>
+                <select class="box" id="test_type" name="test_type" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">
+                    <option value="Separation Anxiety Disorder" {% if question.test_type == "Separation Anxiety Disorder" %}selected{% endif %}>Separation Anxiety Disorder</option>
+                    <option value="Social Phobia" {% if question.test_type == "Social Phobia" %}selected{% endif %}>Social/ School Phobia</option>
+                    <option value="Generalised Anxiety Disorder" {% if question.test_type == "Generalised Anxiety Disorder" %}selected{% endif %}>Generalised Anxiety Disorder</option>
+                    <option value="Panic Disorder" {% if question.test_type == "Panic Disorder" %}selected{% endif %}>Panic Disorder</option>
+                    <option value="Obsessive Compulsive Disorder" {% if question.test_type == "Obsessive Compulsive Disorder" %}selected{% endif %}>Obsessive Compulsive Disorder</option>
+                    <option value="Major Depressive Disorder" {% if question.test_type == "Major Depressive Disorder" %}selected{% endif %}>Major Depressive Disorder</option>
+                </select>
+            </div>
+
+            <!-- Question Content -->
+            <div>
+                <label for="question_content" style="font-weight: 600;">Question Content</label>
+                <textarea class="box" id="question_content" name="question_content" rows="6" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">{{ question.question_content }}</textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; justify-content: flex-end; gap: 15px;">
+                <a href="{{ url_for('main.admin_dashboard') }}" class="btn" style="background-color: #ccc; color: #333; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: 600;">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="background-color: #4CAF50; color: #fff; padding: 12px 25px; border-radius: 8px; font-weight: 600; border: none;">Update Question</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

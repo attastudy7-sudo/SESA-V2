@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %} Edit School {% endblock %}
+
+{% block body %}
+<h1>Edit School</h1>
+<form method="POST" >
+    <label>Name of institution:</label>
+    <input class="box" type="text" name="name" value="{{ school.school_name }}" required><br>
+    <label>Email:</label>
+    <br>
+    <input class="box" type="email" name="email" value="{{ school.email }}" required><br>
+    <label>Name of Counsellor:</label>
+    <input class="box" type="text" name="username" value="{{ school.admin_name }}" required><br>
+    <label>Password:</label>
+    <input class="box" type="password" name="password" placeholder="Enter new password if changing" ><br>
+    <div class="statItem">
+    <input id="btn" type="submit" value="Update">
+    <button id="btn"><a style="color: white; text-decoration:none;" href="{{ url_for('main.admin_dashboard') }}">Cancel</a></button>
+    </div>
+</form>
+{% endblock %}

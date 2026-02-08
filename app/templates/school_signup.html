@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}School Signup{% endblock %}
+{% block body %}
+
+<div class="auth-wrapper">
+  <div class="auth-flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="{{ url_for('static', filename='Images/Pofa.jpg') }}" alt="FOPA Logo" class="logo">
+      <h1>FOPA DILIGENT CONSULT</h1>
+      <p class="tagline">SOCIAL EMOTIONAL STUDENTS AUDIT | SESA</p>
+      <h2 class="form-title">School Registration</h2>
+    </div>
+
+    <form action="{{ url_for('auth.school_signup') }}" method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="school_name">School Name</label>
+        <input type="text" name="school_name" id="school_name" placeholder="Enter the school name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="admin_name">Admin Name</label>
+        <input type="text" name="admin_name" id="admin_name" placeholder="Name of school admin/counsellor" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">School Email</label>
+        <input type="email" name="email" id="email" placeholder="example@school.edu.gh" required>
+      </div>
+
+      <div class="form-group">
+        <label for="admin_password">Password</label>
+        <input type="password" name="admin_password" id="admin_password" placeholder="At least 8 characters" required>
+      </div>
+
+      <button type="submit" class="btn-submit">Register</button>
+
+      <p class="auth-link">
+        Already have a school account?
+        <a href="{{ url_for('auth.school_login') }}">Login</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  const flashes = document.querySelectorAll(".flash");
+  setTimeout(() => {
+    flashes.forEach(flash => {
+      flash.style.transition = "opacity 0.5s ease";
+      flash.style.opacity = "0";
+      setTimeout(() => flash.remove(), 500);
+    });
+  }, 3000);
+});
+</script>
+
+{% endblock %}

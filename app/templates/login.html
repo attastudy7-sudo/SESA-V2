@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block body %}
+
+<div class="auth-wrapper">
+  <div class="auth-flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>SESA</h1>
+      <h2>Login</h2>
+    </div>
+
+    <form action="{{ url_for('auth.login') }}" method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <div class="input-container">
+          <input id="username" type="text" name="username" placeholder="Enter your username" required>
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-container">
+          <input id="password" type="password" name="password" placeholder="Enter your password" required>
+          <i class="fas fa-lock"></i>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Login</button>
+
+      <p class="auth-link">
+        Are you a school administrator?
+        <a href="{{ url_for('auth.school_login') }}">Login here</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  const flashes = document.querySelectorAll(".flash");
+  setTimeout(() => {
+    flashes.forEach(flash => {
+      flash.style.transition = "opacity 0.5s ease";
+      flash.style.opacity = "0";
+      setTimeout(() => flash.remove(), 500);
+    });
+  }, 3000);
+});
+</script>
+
+{% endblock %}

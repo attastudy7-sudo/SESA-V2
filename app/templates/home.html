@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}SESA Home{% endblock %}
+
+{% block body %}
+
+<div class="home-container">
+
+        <div id="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+              {% endfor %}
+          {% endif %}
+        {% endwith %}
+        </div>
+
+<!-- Header -->
+    <header class="home-header">
+        <div class="logo-container">
+            <img class="logo" src="{{ url_for('static', filename='Images/Pofa.jpg') }}" alt="FOPA Logo" class="logo">
+            <div class="logo-text">
+                <h1>FOPA DILLIGENT CONSULT</h1>
+                <p class="organization-tagline">Training Teachers | Emotional Therapy for Students</p>
+            </div>
+        </div>
+        <h2 class="sesa-title">Social Emotional Students' Audit</h2>
+        <p class="tagline">Select a specific assessment to evaluate your social and emotional well-being</p>
+    </header>
+    <!-- Test Selection -->
+    <section id="test-selection-section" class="test-section">
+        <h2 class="welcome">Welcome {{ fname }} {{ lname }}! <br>Choose an Assessment</h2>
+        <p class="instructions">Please select one of the following assessments. Each focuses on different aspects of mental health. There are no right or wrong answers.</p>
+
+        <div class="test-grid">
+            {% set tests = [
+                {'name': 'Separation Anxiety Disorder', 'title': 'Fear of Being Left Alone', 'desc': 'Measures anxiety related to separation or fear of being left alone', 'count': sad_question_count, 'class': 'card-separation'},
+                {'name': 'Social Phobia', 'title': 'Fear of Being Judged or Embarrased in School', 'desc': 'Assesses fear of being judged or embarrased in public', 'count': sp_question_count, 'class': 'card-social'},
+                {'name': 'Generalised Anxiety Disorder', 'title': 'Constant Worrying About Many Things', 'desc': 'Evaluates constant worry about many things and various aspects of life', 'count': gad_question_count, 'class': 'card-generalized'},
+                {'name': 'Panic Disorder', 'title': 'The Sudden Fear of Attacks/ Heart Racing Moments', 'desc': 'Measures experiences of sudden fear or heart racing moments', 'count': pd_question_count, 'class': 'card-panic'},
+                {'name': 'Obsessive Compulsive Disorder', 'title': 'Uncontrollable Thoughts/ Repeating Actions', 'desc': 'Assesses uncontrollable thoughts and repeating actions', 'count': ocd_question_count, 'class': 'card-ocd'},
+                {'name': 'Major Depressive Disorder', 'title': 'Deep Sadness/ Loss of Interest in Life/School', 'desc': 'Evaluates symptoms of deep sadness or loss of interest in life', 'count': mdd_question_count, 'class': 'card-depression'}
+            ] %}
+
+            {% for test in tests %}
+            <a href="{{ url_for('test.display_questions', test_type=test.name) }}" class="test-card {{ test.class }}">
+                <h3>{{ test.title }}</h3>
+                <p>{{ test.desc }}</p>
+                <div class="questions-count">{{ test.count }} questions</div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+            <a class="home-button" id="statsbtn" onclick="showstats()">Statistics</a>
+            {% if g.user and g.user.id == 1 %}
+            <a class="home-button" href="{{ url_for('main.admin_dashboard') }}">Admin Dashboard</a>
+            {% endif %}
+            <a class="home-button" href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section id="stats" class="stats-section" style="display:none;">
+        <h3 style="text-align: center">Your Statistics</h3>
+        {% if g.user %}
+        <div class="scroll-table">
+            <table> 
+                <tr>
+                    <th>Last Login</th>
+                    <th>Total Tests Taken</th>
+                    <th>Most Recent Test</th>
+                </tr>
+                <tr>
+                    <td>{{ last_login.strftime("%B %d, %Y — %I:%M %p") }}</td>
+                    <td>{{ total_tests }}</td>
+                    <td>{{ most_recent.test_type if most_recent else 'None' }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <h3 style="text-align: center">Your Test History</h3>
+        <div class="scroll-table">
+            <table>
+                <tr><th>Date</th><th>Test</th><th>Score</th><th>Max Score</th><th>Details</th></tr>
+                {% if g.user.test_results %}
+                    {% for tr in g.user.test_results|sort(attribute='taken_at', reverse=True) %}
+                    <tr>
+                        <td>{{ tr.taken_at.strftime("%B %d, %Y — %I:%M %p") }}</td>
+                        <td>{{ tr.test_type }}</td>
+                        <td>{{ tr.score }}</td>
+                        <td>{{ tr.max_score }}</td>
+                        <td>{{ tr.details }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" style="text-align:center;">No test history available</td></tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+    </section>
+    <!-- Footer -->
+    <div class="home-footer">
+        <p>This assessment is for informational purposes only and is not a diagnostic tool.</p>
+        <p>Please consult a healthcare professional for a complete evaluation.</p>
+    </div>
+</div>
+<div id="footer" style="margin-bottom: -100px;">Copyright 2025 FOPA Dilligent Consult <br>All rights reserved</div></div>
+
+<!-- Scripts -->
+<script>
+function showstats() {
+    let stats = document.getElementById("stats");
+    let btn = document.getElementById("statsbtn");
+    if (stats.style.display === "none") {
+        stats.style.display = "block";
+        btn.innerText = "Hide Statistics";
+    } else {
+        stats.style.display = "none";
+        btn.innerText = "Statistics";
+    }
+}
+
+// Flash message fade out
+window.addEventListener("DOMContentLoaded", () => {
+    const flashes = document.querySelectorAll(".flash");
+    setTimeout(() => {
+        flashes.forEach(flash => {
+            flash.style.transition = "opacity 0.5s ease";
+            flash.style.opacity = "0";
+            setTimeout(() => flash.remove(), 500);
+        });
+    }, 3000);
+});
+</script>
+
+<style>
+</style>
+
+
+{% endblock %}

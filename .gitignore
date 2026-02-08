@@ -1,0 +1,24 @@
+.venv/
+__pycache__
+instance
+migrations
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+env/
+
+# Flask
+instance/
+*.sqlite3
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

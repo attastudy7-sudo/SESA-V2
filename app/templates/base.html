@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='Images/Pofa.jpg') }}">
+    <link rel="stylesheet" href="{{url_for('static',filename='CSS/style.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body onload="loader()">
+  <div class="loader"></div>
+
+  {% block body %}
+  <div style="display:none;" id="myDiv" class="animate-bottom">
+
+
+   
+<!-- Loading Spinner -->
+<div id="loading" style="display: none;">
+  <div class="spinner"></div>
+</div>
+
+  <form id="myForm" action="/add_question" method="POST">
+    <input type="text" name="test_type" placeholder="Enter test type" required>
+    <textarea name="question_content" placeholder="Enter question" required></textarea>
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('myForm');
+    const loader = document.getElementById('loader');
+    const overlay = document.getElementById('overlay');
+
+    form.addEventListener('submit', function () {
+      loader.style.display = 'block';
+      overlay.style.display = 'block';
+    });
+  </script>
+<script src="{{url_for('static',filename='JS/script.js')}}"></script>
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    </div>
+
+    {% endblock %}
+ </body>
+</html>

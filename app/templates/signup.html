@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}SESA Signup{% endblock %}
+{% block body %}
+
+<div class="auth-wrapper">
+  <div class="auth-flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="{{ url_for('static', filename='Images/Pofa.jpg') }}" alt="FOPA Logo" class="logo">
+      <h1>FOPA DILIGENT CONSULT</h1>
+      <p class="tagline">SOCIAL EMOTIONAL STUDENTS AUDIT | SESA</p>
+      <h2 class="form-title">Create Account</h2>
+    </div>
+
+    <form action="{{ url_for('auth.signup') }}" method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="fname">First Name</label>
+        <input type="text" name="fname" id="fname" placeholder="Enter your first name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="lname">Last Name</label>
+        <input type="text" name="lname" id="lname" placeholder="Enter your last name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" placeholder="example@domain.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" placeholder="Choose a username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" placeholder="Minimum 8 characters" required>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="Passwords must match" required>
+      </div>
+
+      <div class="form-group">
+        <label for="birthdate">Birth Date</label>
+        <input type="date" name="birthdate" id="birthdate" required>
+      </div>
+
+      <div class="form-group">
+        <label for="gender">Gender</label>
+        <select name="gender" id="gender" required>
+          <option value="" disabled selected>Select gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="level">Education</label>
+        <select name="level" id="level" required>
+          <option value="" disabled selected>Select education level</option>
+          <option value="primarySchool">Primary School</option>
+          <option value="middleSchool">Middle School</option>
+          <option value="highSchool">High School</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">Sign Up</button>
+
+      <p class="auth-link">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}">Login</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  const flashes = document.querySelectorAll(".flash");
+  setTimeout(() => {
+    flashes.forEach(flash => {
+      flash.style.transition = "opacity 0.5s ease";
+      flash.style.opacity = "0";
+      setTimeout(() => flash.remove(), 500);
+    });
+  }, 3000);
+});
+</script>
+
+{% endblock %}

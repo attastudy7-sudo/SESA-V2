@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='Images/Pofa.jpg') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SESA</title>
+
+    <!-- Google Font: Montserrat for modern headings -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Global Styles --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            color: #1a3e2c; /* dark green */
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* --- Hero Section --- */
+        .landing-hero {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 60px 80px;
+            background: linear-gradient(120deg, #f9f1d4, #e6f2e6); /* goldish yellow to soft green */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Circles */
+        .landing-hero::before,
+        .landing-hero::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .landing-hero::before {
+            width: 500px;
+            height: 500px;
+            background: #d4af37; /* gold circle */
+            top: -100px;
+            right: -150px;
+        }
+
+        .landing-hero::after {
+            width: 400px;
+            height: 400px;
+            background: #1a3e2c; /* dark green circle */
+            bottom: -150px;
+            left: -100px;
+        }
+
+        /* --- Text Section --- */
+        .text-section {
+            position: relative;
+            z-index: 1;
+            max-width: 550px;
+        }
+
+        .text-section h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            color: #1a3e2c;
+        }
+
+        .text-section p {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #1a3e2c;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            margin-right: 20px;
+            padding: 18px 36px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-login {
+            background: #1a3e2c;
+            color: #f9f1d4;
+        }
+
+        .btn-login:hover {
+            background: #145229;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn-signup {
+            background: #d4af37;
+            color: #ffffff;
+        }
+
+        .btn-signup:hover {
+            background: #bfa330;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* --- Logo Section --- */
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            z-index: 1;
+        }
+
+        .logo-section {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 25px;
+            opacity: 0.2; /* subtle background artwork */
+        }
+
+        .logo-section .main-logo {
+            width: 100%;
+            max-width: 500px; /* larger logo */
+        }
+
+        /* --- Fade-in Animations --- */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s forwards;
+        }
+
+        .fade-in-delay {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            .landing-hero {
+                flex-direction: column-reverse;
+                padding: 40px 20px;
+                text-align: center;
+            }
+
+            .text-section h1 {
+                font-size: 42px;
+            }
+
+            .text-section p {
+                font-size: 16px;
+            }
+
+            .btn {
+                margin-bottom: 15px;
+                width: 80%;
+                padding: 14px 0;
+            }
+
+            .logo-section .artwork {
+                max-width: 250px;
+                margin-bottom: 15px;
+            }
+
+            .logo-section .main-logo {
+                max-width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-hero">
+        <!-- Text Section -->
+        <div class="text-section fade-in">
+            <h1 class="fade-in">Welcome to the Social Emotional Students' Audit (SESA)</h1>
+            <p class="fade-in fade-in-delay">Brought to you by FOPA DILLIGENT CONSULT</p>
+            <p class="fade-in fade-in-delay">Take our assessment to gain meaningful insights into mental health, or include your institution in our program.</p>
+            <br><br>
+            <div class="fade-in fade-in-delay">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-login">Login</a>
+                <a href="{{ url_for('auth.school_signup') }}" class="btn btn-signup">Sign Up My School</a>
+            </div>
+        </div>
+
+        <!-- Logo Section -->
+        <div class="logo-section fade-in fade-in-delay">
+            <!-- Main logo -->
+            <img class="main-logo" src="{{ url_for('static', filename='Images/Pofa.png') }}" alt="FOPA DILLIGENT CONSULT Logo">
+        </div>
+    </div>
+</body>
+</html>

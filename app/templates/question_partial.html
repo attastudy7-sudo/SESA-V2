@@ -1,0 +1,35 @@
+<h2 id="current-test-title">{{ question.test_type }}</h2>
+<h3 style="font-size:18px; text-align: center;">Progress: {{ progress }}%</h3>
+<div class="progress-bar">
+    <div class="progress" style="width: {{ (curr_question / question_count) * 100 }}%;"></div>
+</div><br>
+
+<form id="question-form" method="POST" action="{{ url_for('test.display_questions', test_type=test_type) }}">
+    <div class="question">
+        <div class="question-number">Question {{ curr_question }} of {{ question_count }}</div>
+        <div class="question-text">{{ question.question_content }}</div>
+    </div>
+
+    <div class="options">
+        {% for option in ['Never', 'Sometimes', 'Often', 'Always'] %}
+            <label class="option">
+                <input
+                    type="radio"
+                    name="answer"
+                    value="{{ option }}"
+                    {% if saved_answer == option %}checked{% endif %}
+                >
+                {{ option }}
+            </label>
+        {% endfor %}
+    </div>
+
+    <div class="navigation-buttons" style="margin-top: 20px; display: flex; justify-content: space-between;">
+        {% if curr_question > 1 %}
+            <button type="button" id="back-btn" class="nav-btn back">← Back</button>
+        {% else %}
+            <div></div>
+        {% endif %}
+        <button type="button" id="next-btn" class="nav-btn next">Next →</button>
+    </div>
+</form>

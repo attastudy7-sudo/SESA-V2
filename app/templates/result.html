@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}Survey Results{% endblock %}
+
+{% block body %}
+<div class="results-container">
+
+  <!-- HEADER -->
+  <header class="results-header">
+    <div class="logo-area">
+      <img src="{{ url_for('static', filename='Images/Pofa.jpg') }}" alt="FOPA Logo" class="logo">
+      <div class="logo-text">
+        <h1 style="color: white; font-size: 1.2rem;">FOPA DILLIGENT CONSULT</h1>
+        <p class="tagline">Training Teachers | Emotional Therapy for Students</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- RESULTS CARD -->
+  <div class="results-card">
+    <h1 style="font-size: 25px; color: #1e5b43">Your Results</h1>
+    <div class="score-display">
+      <p class="score-text">Your Score: <strong id="score-counter">0</strong> out of {{ max_score }}</p>
+      <div class="stage-indicator 
+        {% if stage == 'Normal Stage' %}normal-stage
+        {% elif stage == 'Mild Stage' %}mild-stage
+        {% elif stage == 'Elevated Stage' %}elevated-stage
+        {% elif stage == 'Clinical Stage' or stage == 'Counselling/Clinical Stage' %}clinical-stage
+        {% else %}stage-unknown{% endif %}"
+        id="stage-indicator">
+        {{ stage }}
+      </div>
+    </div>
+
+    <div class="interpretation" id="interpretation">
+      {{ message }}
+    </div>
+
+    <div class="score-breakdown">
+      <p><strong>Score Interpretation:</strong> <span id="score-text">{{ score }}</span> points: This falls within the <strong>{{ stage }}</strong> ({{ score_range }})</p>
+    </div>
+
+    <!-- Feedback Form -->
+    <form id="resultsfrm" action="{{ url_for('test.submit_result') }}" method="POST">
+      <input type="hidden" name="test_type" value="{{ test_type }}">
+      <input type="hidden" name="score" value="{{ score }}">
+      <input type="hidden" name="stage" value="{{ stage }}">
+      <input type="hidden" name="message" value="{{ message }}">
+      <input type="hidden" name="max_score" value="{{ max_score }}">
+
+      <label for="feedback">What bothers you?</label>
+      <textarea id="feedback" name="feedback" placeholder="Write a line or two about how you are feeling or what you think." rows="4"></textarea>
+    </form>
+
+    <!-- NAVIGATION BUTTONS -->
+    <div class="nav-buttons">
+      {% if next_test_type %}
+      <form action="{{ url_for('test.display_questions', test_type=next_test_type) }}" method="POST">
+        <button type="submit" class="btn-next-test" onclick="document.getElementById('resultsfrm').submit()">Next Test</button>
+      </form>
+      {% else %}
+        <button class="btn-next-test" disabled >Next Test →</button>
+      {% endif %}
+      <button type="submit" class="btn-finish" onclick="document.getElementById('resultsfrm').submit()">Finish</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="results-footer">
+    <p>This assessment is for informational purposes only and is not a diagnostic tool.</p>
+    <p>Please consult a healthcare professional for a complete evaluation.</p>
+  </div>
+</div>
+
+<style>
+
+body {
+    margin: 0;
+    padding: 0;
+}
+/* ===== CONTAINER ===== */
+.results-container {
+  max-width: 900px;
+  margin: 0px auto;
+  margin-top: 0px;
+  padding: 2rem;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #333;
+}
+
+/* ===== HEADER ===== */
+.results-header {
+  border-radius: 15px;
+  text-align: center;
+  padding: 20px 10px 20px 10px;
+  margin-top: 0rem;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 80px;
+  height: auto;
+  border-radius: 12px;
+}
+
+.logo-text h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.logo-text .tagline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #e4e4e4;
+}
+
+.assessment-title {
+  font-size: 1.8rem;
+  margin-top: 1rem;
+  color: var(--light-yellow);
+  border-bottom: none;
+}
+
+.assessment-subtitle {
+  font-size: 1rem;
+  color: #e4e4e4;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== RESULTS CARD ===== */
+.results-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.score-display {
+  margin: 1rem 0;
+}
+
+.score-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.stage-indicator {
+  width: 100%;
+  max-width: 250px;
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1rem;
+  transition: 0.5s ease;
+}
+
+.normal-stage { background: #2a7f62; }
+.mild-stage { background: #b8860b; }
+.elevated-stage { background:#daa520; }
+.clinical-stage { background: #b22222; }
+.stage-unknown { background: #777; }
+
+.interpretation {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.score-breakdown {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== FEEDBACK FORM ===== */
+#feedback {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  margin-top: 0.5rem;
+}
+
+/* ===== NAV BUTTONS ===== */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-next-test, .btn-finish {
+  padding: 15px 25px;
+  min-width: 150px;
+  background: #2a7f62;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-next-test:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.btn-next-test:hover:not(:disabled), .btn-finish:hover {
+  background: #1e5b43;
+}
+
+/* ===== FOOTER ===== */
+.results-footer {
+    text-align: center;
+    margin-top: 25px;
+    margin-bottom: 0px;
+    max-width: 900px;
+    padding: 25px 0px 25px 0px;
+    background: linear-gradient(135deg, var(--light-yellow) 0%, var(--warm-yellow) 100%);
+    color: var(--text-dark);
+    font-size: 14px;
+    border-top: 1px solid var(--accent-yellow);
+
+}
+
+@media(max-width: 700px){
+  .results-container{
+    padding: 0px;
+  }
+}
+
+@media(max-width: 500px){
+  .results-footer {
+    padding: 10px 5px 10px 5px;
+  } 
+
+  .results-header {
+    margin: 10px 15px 10px 15px;
+  }
+
+  .results-card {
+    margin: 10px 15px 10px 15px;
+    padding: 8px 12px 8px 12px;
+  }
+}
+
+</style>
+
+<script>
+// Animated count-up for score
+document.addEventListener("DOMContentLoaded", () => {
+    const scoreElement = document.getElementById("score-counter");
+    const scoreTarget = {{ score }};
+    let current = 0;
+    const increment = Math.ceil(scoreTarget / 100000); // adjust speed
+
+    function updateScore() {
+        if (current < scoreTarget) {
+            current += increment;
+            if (current > scoreTarget) current = scoreTarget;
+            scoreElement.innerText = current;
+            setTimeout(updateScore, 100);
+        }
+    }
+    updateScore();
+});
+</script>
+{% endblock %}
+
